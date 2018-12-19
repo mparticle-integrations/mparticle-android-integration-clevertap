@@ -5,20 +5,16 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.mparticle:android-kit-plugin:+'
+        classpath 'com.mparticle:android-kit-plugin:' + project.version
     }
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url 'https://maven.google.com/'
-        name 'Google'
-    }
+    google()
 }
 
-project.version = '5.6.4-SNAPSHOT'
 
 apply plugin: 'com.mparticle.kit'
 
@@ -30,6 +26,5 @@ android {
 
 dependencies {
     api 'com.clevertap.android:clevertap-android-sdk:3.3.4'
-    
 }
 

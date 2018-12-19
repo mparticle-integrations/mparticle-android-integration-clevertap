@@ -1,7 +1,5 @@
 ## CleverTap Kit Integration
 
-[See here for more information](https://github.com/mParticle/mparticle-android-sdk/wiki/Kit-Development) on how to use this example to write a new kit.
-
 This repository contains the [CleverTap](https://www.clevertap.com/) integration for the [mParticle Android SDK](https://github.com/mParticle/mparticle-android-sdk).
 
 ### Adding the integration
@@ -10,15 +8,15 @@ This repository contains the [CleverTap](https://www.clevertap.com/) integration
 
     ```groovy
     dependencies {
-        compile 'com.mparticle:android-example-kit:5+'
+        compile 'com.mparticle:android-clevertap-kit:5+'
     }
     ```
-2. Follow the mParticle Android SDK [quick-start](https://github.com/mParticle/mparticle-android-sdk), then rebuild and launch your app, and verify that you see `"<REPLACE ME> detected"` in the output of `adb logcat`.
+2. Follow the mParticle Android SDK [quick-start](https://github.com/mParticle/mparticle-android-sdk), then rebuild and launch your app, and verify that you see `"CleverTap detected"` in the output of `adb logcat`.
 3. Reference mParticle's integration docs below to enable the integration.
 
 ### Documentation
 
-[Example integration](http://docs.mparticle.com/?java#REPLACEME)
+[Clevertap integration](https://docs.mparticle.com/integrations/clevertap/event/)
 
 ### License
 
