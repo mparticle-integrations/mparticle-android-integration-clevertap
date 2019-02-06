@@ -220,7 +220,7 @@ public class CleverTapKit extends KitIntegration implements
     }
 
     @Override
-    public void onIncrementUserAttribute (String key, String value, FilteredMParticleUser user) {
+    public void onIncrementUserAttribute (String key, int incrementedBy, String value, FilteredMParticleUser user) {
         // not supported
     }
 
