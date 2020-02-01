@@ -85,7 +85,7 @@ public class CleverTapKit extends KitIntegration implements
     private void updateIntegrationAttributes() {
         String cleverTapID = cl.getCleverTapAttributionIdentifier();
         if (!KitUtils.isEmpty(cleverTapID)) {
-            HashMap<String, String> integrationAttributes = new HashMap<String, String>(1);
+            HashMap<String, String> integrationAttributes = new HashMap<>(1);
             integrationAttributes.put(CLEVERTAPID_INTEGRATION_KEY, cleverTapID);
             this.setIntegrationAttributes(integrationAttributes);
         } else {
@@ -109,7 +109,7 @@ public class CleverTapKit extends KitIntegration implements
     @Override
     public List<ReportingMessage> setOptOut(boolean optedOut) {
         cl.setOptOut(optedOut);
-        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
+        List<ReportingMessage> messages = new LinkedList<>();
         messages.add(new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null));
         return messages;
     }
@@ -141,10 +141,11 @@ public class CleverTapKit extends KitIntegration implements
 
     @Override
     public List<ReportingMessage> logEvent(MPEvent event) {
-        Map<String,String> info = event.getInfo();
-        Map<String, Object> props = new HashMap<String, Object>(info);
+        Map<String,String> customAttributes = event.getCustomAttributes();
+        //noinspection ConstantConditions
+        Map<String, Object> props = new HashMap<String, Object>(customAttributes);
         cl.pushEvent(event.getEventName(),props);
-        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
+        List<ReportingMessage> messages = new LinkedList<>();
         messages.add(ReportingMessage.fromEvent(this, event));
         return messages;
     }
@@ -155,14 +156,15 @@ public class CleverTapKit extends KitIntegration implements
             return null;
         }
         cl.recordScreen(screenName);
-        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
+        List<ReportingMessage> messages = new LinkedList<>();
         messages.add(new ReportingMessage(this, ReportingMessage.MessageType.SCREEN_VIEW, System.currentTimeMillis(), screenAttributes));
         return messages;
     }
 
     @Override
     public List<ReportingMessage> logEvent(CommerceEvent event) {
-        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
+        List<ReportingMessage> messages = new LinkedList<>();
+        //noinspection ConstantConditions
         if (!KitUtils.isEmpty(event.getProductAction()) &&
                 event.getProductAction().equalsIgnoreCase(Product.PURCHASE) &&
                 event.getProducts().size() > 0) {
@@ -211,7 +213,7 @@ public class CleverTapKit extends KitIntegration implements
 
     @Override
     public void onSetUserAttributeList(String attributeKey, List<String> attributeValueList, FilteredMParticleUser user) {
-        cl.setMultiValuesForKey(attributeKey, new ArrayList<String>(attributeValueList));
+        cl.setMultiValuesForKey(attributeKey, new ArrayList<>(attributeValueList));
     }
 
     @Override
