@@ -35,10 +35,14 @@ public class CleverTapKit extends KitIntegration implements
         KitIntegration.IdentityListener  {
 
     private CleverTapAPI cl = null;
+    private boolean useMPIDAsIdentity = false;
+    private boolean useCustomerIdAsIdentity = true;
+
     private static final String CLEVERTAP_KEY = "CleverTap";
     private static final String ACCOUNT_ID_KEY = "AccountID";
     private static final String ACCOUNT_TOKEN_KEY = "AccountToken";
     private static final String ACCOUNT_REGION_KEY = "Region";
+    private static final String USER_ID_FIELD_KEY = "userIdField";
     private static final String PREF_KEY_HAS_SYNCED_ATTRIBUTES = "clevertap::has_synced_attributes";
     private static final String CLEVERTAPID_INTEGRATION_KEY = "clevertap_id_integration_setting";
 
@@ -73,6 +77,9 @@ public class CleverTapKit extends KitIntegration implements
         ActivityLifecycleCallback.register(((Application) context.getApplicationContext()));
 
         cl = CleverTapAPI.getDefaultInstance(getContext());
+
+        useMPIDAsIdentity = "mpid".equals(settings.get(USER_ID_FIELD_KEY));
+        useCustomerIdAsIdentity = !useMPIDAsIdentity;
 
         updateIntegrationAttributes();
         return null;
@@ -348,7 +355,10 @@ public class CleverTapKit extends KitIntegration implements
         String fbid = mParticleUser.getUserIdentities().get(MParticle.IdentityType.Facebook);
         String gpid = mParticleUser.getUserIdentities().get(MParticle.IdentityType.Google);
 
-        if (customerId != null) {
+        if (useMPIDAsIdentity) {
+            profile.put(IDENTITY_IDENTITY, Long.toString(mParticleUser.getId()));
+        }
+        else if (useCustomerIdAsIdentity && customerId != null) {
             profile.put(IDENTITY_IDENTITY, customerId);
         }
         if (email != null) {
