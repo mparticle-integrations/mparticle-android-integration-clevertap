@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
-    api 'com.clevertap.android:clevertap-android-sdk:3.6.3'
+    api 'com.clevertap.android:clevertap-android-sdk:3.6.4'
+    api 'com.android.installreferrer:installreferrer:1.0'
 }
 
