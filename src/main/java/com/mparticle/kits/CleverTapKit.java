@@ -15,7 +15,7 @@ import java.util.Map;
 
 import com.clevertap.android.sdk.ActivityLifecycleCallback;
 import com.clevertap.android.sdk.CleverTapAPI;
-import com.clevertap.android.sdk.NotificationInfo;
+import com.clevertap.android.sdk.pushnotification.NotificationInfo;
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
 import com.mparticle.MParticle.UserAttributes;
@@ -35,14 +35,10 @@ public class CleverTapKit extends KitIntegration implements
         KitIntegration.IdentityListener  {
 
     private CleverTapAPI cl = null;
-    private boolean useMPIDAsIdentity = false;
-    private boolean useCustomerIdAsIdentity = true;
-
     private static final String CLEVERTAP_KEY = "CleverTap";
     private static final String ACCOUNT_ID_KEY = "AccountID";
     private static final String ACCOUNT_TOKEN_KEY = "AccountToken";
     private static final String ACCOUNT_REGION_KEY = "Region";
-    private static final String USER_ID_FIELD_KEY = "userIdField";
     private static final String PREF_KEY_HAS_SYNCED_ATTRIBUTES = "clevertap::has_synced_attributes";
     private static final String CLEVERTAPID_INTEGRATION_KEY = "clevertap_id_integration_setting";
 
@@ -78,9 +74,6 @@ public class CleverTapKit extends KitIntegration implements
 
         cl = CleverTapAPI.getDefaultInstance(getContext());
 
-        useMPIDAsIdentity = "mpid".equals(settings.get(USER_ID_FIELD_KEY));
-        useCustomerIdAsIdentity = !useMPIDAsIdentity;
-
         updateIntegrationAttributes();
         return null;
     }
@@ -92,7 +85,7 @@ public class CleverTapKit extends KitIntegration implements
     private void updateIntegrationAttributes() {
         String cleverTapID = cl.getCleverTapAttributionIdentifier();
         if (!KitUtils.isEmpty(cleverTapID)) {
-            HashMap<String, String> integrationAttributes = new HashMap<>(1);
+            HashMap<String, String> integrationAttributes = new HashMap<String, String>(1);
             integrationAttributes.put(CLEVERTAPID_INTEGRATION_KEY, cleverTapID);
             this.setIntegrationAttributes(integrationAttributes);
         } else {
@@ -116,7 +109,7 @@ public class CleverTapKit extends KitIntegration implements
     @Override
     public List<ReportingMessage> setOptOut(boolean optedOut) {
         cl.setOptOut(optedOut);
-        List<ReportingMessage> messages = new LinkedList<>();
+        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
         messages.add(new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null));
         return messages;
     }
@@ -148,11 +141,10 @@ public class CleverTapKit extends KitIntegration implements
 
     @Override
     public List<ReportingMessage> logEvent(MPEvent event) {
-        Map<String,String> customAttributes = event.getCustomAttributes();
-        //noinspection ConstantConditions
-        Map<String, Object> props = new HashMap<String, Object>(customAttributes);
+        Map<String,String> info = event.getInfo();
+        Map<String, Object> props = new HashMap<String, Object>(info);
         cl.pushEvent(event.getEventName(),props);
-        List<ReportingMessage> messages = new LinkedList<>();
+        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
         messages.add(ReportingMessage.fromEvent(this, event));
         return messages;
     }
@@ -163,15 +155,14 @@ public class CleverTapKit extends KitIntegration implements
             return null;
         }
         cl.recordScreen(screenName);
-        List<ReportingMessage> messages = new LinkedList<>();
+        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
         messages.add(new ReportingMessage(this, ReportingMessage.MessageType.SCREEN_VIEW, System.currentTimeMillis(), screenAttributes));
         return messages;
     }
 
     @Override
     public List<ReportingMessage> logEvent(CommerceEvent event) {
-        List<ReportingMessage> messages = new LinkedList<>();
-        //noinspection ConstantConditions
+        List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
         if (!KitUtils.isEmpty(event.getProductAction()) &&
                 event.getProductAction().equalsIgnoreCase(Product.PURCHASE) &&
                 event.getProducts().size() > 0) {
@@ -220,7 +211,7 @@ public class CleverTapKit extends KitIntegration implements
 
     @Override
     public void onSetUserAttributeList(String attributeKey, List<String> attributeValueList, FilteredMParticleUser user) {
-        cl.setMultiValuesForKey(attributeKey, new ArrayList<>(attributeValueList));
+        cl.setMultiValuesForKey(attributeKey, new ArrayList<String>(attributeValueList));
     }
 
     @Override
@@ -355,10 +346,7 @@ public class CleverTapKit extends KitIntegration implements
         String fbid = mParticleUser.getUserIdentities().get(MParticle.IdentityType.Facebook);
         String gpid = mParticleUser.getUserIdentities().get(MParticle.IdentityType.Google);
 
-        if (useMPIDAsIdentity) {
-            profile.put(IDENTITY_IDENTITY, Long.toString(mParticleUser.getId()));
-        }
-        else if (useCustomerIdAsIdentity && customerId != null) {
+        if (customerId != null) {
             profile.put(IDENTITY_IDENTITY, customerId);
         }
         if (email != null) {
