@@ -15,7 +15,7 @@ import java.util.Map;
 
 import com.clevertap.android.sdk.ActivityLifecycleCallback;
 import com.clevertap.android.sdk.CleverTapAPI;
-import com.clevertap.android.sdk.NotificationInfo;
+import com.clevertap.android.sdk.pushnotification.NotificationInfo;
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
 import com.mparticle.MParticle.UserAttributes;
