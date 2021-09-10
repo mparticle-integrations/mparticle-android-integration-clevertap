@@ -121,7 +121,7 @@ public class CleverTapKit extends KitIntegration implements
 
     @Override
     public void setInstallReferrer(android.content.Intent intent) {
-        cl.pushInstallReferrer(intent);
+        cl.pushInstallReferrer(intent.getDataString());
     }
 
     @Override
