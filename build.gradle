@@ -31,6 +31,6 @@ android {
 }
 
 dependencies {
-    api 'com.clevertap.android:clevertap-android-sdk:4.2.0'
+    api 'com.clevertap.android:clevertap-android-sdk:4.3.0'
 }
 
