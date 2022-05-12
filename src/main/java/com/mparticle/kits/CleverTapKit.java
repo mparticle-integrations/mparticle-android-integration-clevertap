@@ -141,7 +141,7 @@ public class CleverTapKit extends KitIntegration implements
 
     @Override
     public List<ReportingMessage> logEvent(MPEvent event) {
-        Map<String,String> info = event.getInfo();
+        Map<String,String> info = event.getCustomAttributeStrings();
         Map<String, Object> props = new HashMap<String, Object>(info);
         cl.pushEvent(event.getEventName(),props);
         List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
