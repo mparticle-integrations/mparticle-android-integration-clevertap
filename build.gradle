@@ -1,28 +1,24 @@
 buildscript {
+    ext.kotlin_version = '1.7.10'
     if (!project.hasProperty('version') || project.version.equals('unspecified')) {
         project.version = '+'
     }
 
     repositories {
+        google()
         mavenLocal()
         mavenCentral()
-        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.2'
         classpath 'com.mparticle:android-kit-plugin:' + project.version
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
     }
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    google()
-
-}
-
-
 apply plugin: 'com.mparticle.kit'
+apply plugin: 'kotlin-android'
+
 
 android {
     defaultConfig {
@@ -33,4 +29,3 @@ android {
 dependencies {
     api 'com.clevertap.android:clevertap-android-sdk:4.6.0'
 }
-
