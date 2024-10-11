@@ -58,7 +58,6 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
                     handler?.postDelayed({ updateIntegrationAttributes() }, 500)
                 }
             }
-
         }
     }
 
