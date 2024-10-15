@@ -47,15 +47,16 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
      */
     private fun updateIntegrationAttributes() {
         cleverTapInstance?.let {
-            val cleverTapID = it.cleverTapAttributionIdentifier
-            if (!KitUtils.isEmpty(cleverTapID)) {
-                val integrationAttributes = HashMap<String, String>(1)
-                integrationAttributes[CLEVERTAPID_INTEGRATION_KEY] = cleverTapID
-            } else {
-                if (handler == null) {
-                    handler = Handler()
+            it.getCleverTapID { id ->
+                if (!KitUtils.isEmpty(id)) {
+                    val integrationAttributes = HashMap<String, String>(1)
+                    integrationAttributes[CLEVERTAPID_INTEGRATION_KEY] = id
+                } else {
+                    if (handler == null) {
+                        handler = Handler()
+                    }
+                    handler?.postDelayed({ updateIntegrationAttributes() }, 500)
                 }
-                handler?.postDelayed({ updateIntegrationAttributes() }, 500)
             }
         }
     }
