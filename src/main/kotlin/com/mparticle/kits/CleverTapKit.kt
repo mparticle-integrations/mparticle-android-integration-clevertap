@@ -16,19 +16,31 @@ import com.mparticle.consent.ConsentState
 import com.mparticle.identity.MParticleUser
 import com.mparticle.internal.Logger
 import com.mparticle.internal.MPUtility
-import com.mparticle.kits.KitIntegration.*
+import com.mparticle.kits.CommerceEventUtils
+import com.mparticle.kits.KitIntegration.CommerceListener
+import com.mparticle.kits.KitIntegration.FilteredIdentityApiRequest
+import com.mparticle.kits.KitIntegration.FilteredMParticleUser
+import com.mparticle.kits.KitIntegration.IdentityListener
+import com.mparticle.kits.KitIntegration.PushListener
+import com.mparticle.kits.KitIntegration.ReportingMessage
+import com.mparticle.kits.KitIntegration.UserAttributeListener
+import com.mparticle.kits.KitUtils
 import java.math.BigDecimal
-import java.util.*
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.LinkedList
 
-class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
-    KitIntegration.EventListener, PushListener, IdentityListener {
+class CleverTapKit :
+    KitIntegration(),
+    UserAttributeListener,
+    CommerceListener,
+    KitIntegration.EventListener,
+    PushListener,
+    IdentityListener {
 
     private var cleverTapInstance: CleverTapAPI? = null
 
-    override fun onKitCreate(
-        settings: Map<String, String>,
-        context: Context
-    ): List<ReportingMessage> {
+    override fun onKitCreate(settings: Map<String, String>, context: Context): List<ReportingMessage> {
         val accountID = settings[ACCOUNT_ID_KEY]
         require(!KitUtils.isEmpty(accountID)) { "CleverTap AccountID is empty." }
         val accountToken = settings[ACCOUNT_TOKEN_KEY]
@@ -72,8 +84,8 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
                     this,
                     ReportingMessage.MessageType.OPT_OUT,
                     System.currentTimeMillis(),
-                    null
-                )
+                    null,
+                ),
             )
         }
         return messages
@@ -89,16 +101,9 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
 
     override fun leaveBreadcrumb(breadcrumb: String): List<ReportingMessage> = emptyList()
 
-    override fun logError(
-        message: String,
-        errorAttributes: Map<String, String>
-    ): List<ReportingMessage> = emptyList()
+    override fun logError(message: String, errorAttributes: Map<String, String>): List<ReportingMessage> = emptyList()
 
-    override fun logException(
-        exception: Exception,
-        exceptionAttributes: Map<String, String>,
-        message: String
-    ): List<ReportingMessage> = emptyList()
+    override fun logException(exception: Exception, exceptionAttributes: Map<String, String>, message: String): List<ReportingMessage> = emptyList()
 
     override fun logEvent(event: MPEvent): List<ReportingMessage> {
         val info = event.customAttributeStrings
@@ -109,10 +114,7 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
         return messages
     }
 
-    override fun logScreen(
-        screenName: String,
-        screenAttributes: Map<String, String>
-    ): List<ReportingMessage> {
+    override fun logScreen(screenName: String, screenAttributes: Map<String, String>): List<ReportingMessage> {
         cleverTapInstance?.recordScreen(screenName)
         val messages: MutableList<ReportingMessage> = LinkedList()
         messages.add(
@@ -120,8 +122,8 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
                 this,
                 ReportingMessage.MessageType.SCREEN_VIEW,
                 System.currentTimeMillis(),
-                screenAttributes
-            )
+                screenAttributes,
+            ),
         )
         return messages
     }
@@ -132,36 +134,43 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
         if (!KitUtils.isEmpty(event.productAction) &&
             event.productAction.equals(
                 Product.PURCHASE,
-                true
-            ) && event.products?.isNotEmpty() == true
+                true,
+            ) &&
+            event.products?.isNotEmpty() == true
         ) {
             val details = HashMap<String, Any>()
             val items = ArrayList<HashMap<String, Any>>()
-            val eventAttributes = HashMap <String, String>()
+            val eventAttributes = HashMap<String, String>()
             CommerceEventUtils.extractActionAttributes(event, eventAttributes)
             for ((key, value) in eventAttributes) {
                 details[key] = value
             }
-            val transactionId = if (event.transactionAttributes != null && !MPUtility.isEmpty(
-                    event.transactionAttributes?.id
+            val transactionId = if (event.transactionAttributes != null &&
+                !MPUtility.isEmpty(
+                    event.transactionAttributes?.id,
                 )
-            ) event.transactionAttributes?.id else null
+            ) {
+                event.transactionAttributes?.id
+            } else {
+                null
+            }
             if (transactionId != null) {
                 details["Charged ID"] = transactionId
             }
             val products = event.products
 
-           products?.let {
-            for (i in products.indices) {
-                try {
-                    val product = products[i]
-                    val attrs = HashMap<String, String>()
-                    CommerceEventUtils.extractProductFields(product, attrs)
-                    val item = HashMap<String, Any>(attrs)
-                    items.add(item)
-                } catch (t: Throwable) {
-                    cleverTapInstance?.pushError("Error handling Commerce Event product: " + t.message, 512)
-                }}
+            products?.let {
+                for (i in products.indices) {
+                    try {
+                        val product = products[i]
+                        val attrs = HashMap<String, String>()
+                        CommerceEventUtils.extractProductFields(product, attrs)
+                        val item = HashMap<String, Any>(attrs)
+                        items.add(item)
+                    } catch (t: Throwable) {
+                        cleverTapInstance?.pushError("Error handling Commerce Event product: " + t.message, 512)
+                    }
+                }
             }
             cleverTapInstance?.pushChargedEvent(details, items)
             messages.add(ReportingMessage.fromEvent(this, event))
@@ -179,24 +188,13 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
         return messages
     }
 
-    override fun onSetUserAttributeList(
-        attributeKey: String,
-        attributeValueList: List<String>,
-        user: FilteredMParticleUser
-    ) {
+    override fun onSetUserAttributeList(attributeKey: String, attributeValueList: List<String>, user: FilteredMParticleUser) {
         cleverTapInstance!!.setMultiValuesForKey(attributeKey, ArrayList(attributeValueList))
     }
 
-    override fun supportsAttributeLists(): Boolean {
-        return true
-    }
+    override fun supportsAttributeLists(): Boolean = true
 
-    override fun onIncrementUserAttribute(
-        key: String?,
-        incrementedBy: Number?,
-        value: String?,
-        user: FilteredMParticleUser?
-    ) {
+    override fun onIncrementUserAttribute(key: String?, incrementedBy: Number?, value: String?, user: FilteredMParticleUser?) {
         // not supported
     }
 
@@ -217,11 +215,19 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
         var value = valueIn
         val profile = HashMap<String, Any>()
         when {
-            BIRTHDAY == key -> { key = DOB }
-            "name" == key -> { key = NAME }
+            BIRTHDAY == key -> {
+                key = DOB
+            }
+            "name" == key -> {
+                key = NAME
+            }
             UserAttributes.GENDER == key -> {
                 val genderValue = value as String
-                value = if (genderValue.contains("fe")) { FEMALE } else { MALE }
+                value = if (genderValue.contains("fe")) {
+                    FEMALE
+                } else {
+                    MALE
+                }
             }
             UserAttributes.MOBILE_NUMBER == key -> {
                 key = PHONE
@@ -243,7 +249,7 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
     override fun onSetAllUserAttributes(
         userAttributes: Map<String, String>,
         userAttributeLists: Map<String, List<String>>,
-        user: FilteredMParticleUser
+        user: FilteredMParticleUser,
     ) {
         if (!kitPreferences.getBoolean(PREF_KEY_HAS_SYNCED_ATTRIBUTES, false)) {
             for ((key, value) in userAttributes) {
@@ -256,11 +262,7 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
         }
     }
 
-    override fun onConsentStateUpdated(
-        oldState: ConsentState,
-        newState: ConsentState,
-        user: FilteredMParticleUser
-    ) {
+    override fun onConsentStateUpdated(oldState: ConsentState, newState: ConsentState, user: FilteredMParticleUser) {
         // not supported
     }
 
@@ -268,7 +270,7 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
         valueIncreased: BigDecimal,
         valueTotal: BigDecimal,
         eventName: String,
-        contextInfo: Map<String, String>
+        contextInfo: Map<String, String>,
     ): List<ReportingMessage> = emptyList()
 
     override fun willHandlePushMessage(intent: Intent): Boolean {
@@ -296,31 +298,19 @@ class CleverTapKit : KitIntegration(), UserAttributeListener, CommerceListener,
         // not used
     }
 
-    override fun onIdentifyCompleted(
-        mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
-    ) {
+    override fun onIdentifyCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
         updateUser(mParticleUser, false)
     }
 
-    override fun onLoginCompleted(
-        mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
-    ) {
+    override fun onLoginCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
         updateUser(mParticleUser, true)
     }
 
-    override fun onLogoutCompleted(
-        mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
-    ) {
+    override fun onLogoutCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
         // not used
     }
 
-    override fun onModifyCompleted(
-        mParticleUser: MParticleUser,
-        filteredIdentityApiRequest: FilteredIdentityApiRequest
-    ) {
+    override fun onModifyCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
         updateUser(mParticleUser, false)
     }
 

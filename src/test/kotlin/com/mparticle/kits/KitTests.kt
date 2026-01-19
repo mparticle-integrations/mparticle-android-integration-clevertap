@@ -8,7 +8,7 @@ import org.mockito.Mockito
 
 class KitTests {
     private val kit: KitIntegration
-         get() = CleverTapKit()
+        get() = CleverTapKit()
 
     @Test
     @Throws(Exception::class)
