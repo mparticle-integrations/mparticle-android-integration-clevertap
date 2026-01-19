@@ -39,7 +39,10 @@ class CleverTapKit :
     IdentityListener {
     private var cleverTapInstance: CleverTapAPI? = null
 
-    override fun onKitCreate(settings: Map<String, String>, context: Context): List<ReportingMessage> {
+    override fun onKitCreate(
+        settings: Map<String, String>,
+        context: Context,
+    ): List<ReportingMessage> {
         val accountID = settings[ACCOUNT_ID_KEY]
         require(!KitUtils.isEmpty(accountID)) { "CleverTap AccountID is empty." }
         val accountToken = settings[ACCOUNT_TOKEN_KEY]
@@ -100,9 +103,16 @@ class CleverTapKit :
 
     override fun leaveBreadcrumb(breadcrumb: String): List<ReportingMessage> = emptyList()
 
-    override fun logError(message: String, errorAttributes: Map<String, String>): List<ReportingMessage> = emptyList()
+    override fun logError(
+        message: String,
+        errorAttributes: Map<String, String>,
+    ): List<ReportingMessage> = emptyList()
 
-    override fun logException(exception: Exception, exceptionAttributes: Map<String, String>, message: String): List<ReportingMessage> = emptyList()
+    override fun logException(
+        exception: Exception,
+        exceptionAttributes: Map<String, String>,
+        message: String,
+    ): List<ReportingMessage> = emptyList()
 
     override fun logEvent(event: MPEvent): List<ReportingMessage> {
         val info = event.customAttributeStrings
@@ -113,7 +123,10 @@ class CleverTapKit :
         return messages
     }
 
-    override fun logScreen(screenName: String, screenAttributes: Map<String, String>): List<ReportingMessage> {
+    override fun logScreen(
+        screenName: String,
+        screenAttributes: Map<String, String>,
+    ): List<ReportingMessage> {
         cleverTapInstance?.recordScreen(screenName)
         val messages: MutableList<ReportingMessage> = LinkedList()
         messages.add(
@@ -189,17 +202,29 @@ class CleverTapKit :
         return messages
     }
 
-    override fun onSetUserAttributeList(attributeKey: String, attributeValueList: List<String>, user: FilteredMParticleUser) {
+    override fun onSetUserAttributeList(
+        attributeKey: String,
+        attributeValueList: List<String>,
+        user: FilteredMParticleUser,
+    ) {
         cleverTapInstance!!.setMultiValuesForKey(attributeKey, ArrayList(attributeValueList))
     }
 
     override fun supportsAttributeLists(): Boolean = true
 
-    override fun onIncrementUserAttribute(key: String?, incrementedBy: Number?, value: String?, user: FilteredMParticleUser?) {
+    override fun onIncrementUserAttribute(
+        key: String?,
+        incrementedBy: Number?,
+        value: String?,
+        user: FilteredMParticleUser?,
+    ) {
         // not supported
     }
 
-    override fun onRemoveUserAttribute(keyIn: String, user: FilteredMParticleUser) {
+    override fun onRemoveUserAttribute(
+        keyIn: String,
+        user: FilteredMParticleUser,
+    ) {
         var key = keyIn
         if (UserAttributes.MOBILE_NUMBER == key) {
             key = PHONE
@@ -211,7 +236,11 @@ class CleverTapKit :
         cleverTapInstance?.removeValueForKey(key)
     }
 
-    override fun onSetUserAttribute(keyIn: String, valueIn: Any, user: FilteredMParticleUser) {
+    override fun onSetUserAttribute(
+        keyIn: String,
+        valueIn: Any,
+        user: FilteredMParticleUser,
+    ) {
         var key = keyIn
         var value = valueIn
         val profile =
@@ -225,11 +254,12 @@ class CleverTapKit :
             }
             UserAttributes.GENDER == key -> {
                 val genderValue = value as String
-                value = if (genderValue.contains("fe")) {
-                    FEMALE
-                } else {
-                    MALE
-                }
+                value =
+                    if (genderValue.contains("fe")) {
+                        FEMALE
+                    } else {
+                        MALE
+                    }
             }
             UserAttributes.MOBILE_NUMBER == key -> {
                 key = PHONE
@@ -244,7 +274,10 @@ class CleverTapKit :
         cleverTapInstance?.pushProfile(profile)
     }
 
-    override fun onSetUserTag(key: String, user: FilteredMParticleUser) {
+    override fun onSetUserTag(
+        key: String,
+        user: FilteredMParticleUser,
+    ) {
         // not supported
     }
 
@@ -264,7 +297,11 @@ class CleverTapKit :
         }
     }
 
-    override fun onConsentStateUpdated(oldState: ConsentState, newState: ConsentState, user: FilteredMParticleUser) {
+    override fun onConsentStateUpdated(
+        oldState: ConsentState,
+        newState: ConsentState,
+        user: FilteredMParticleUser,
+    ) {
         // not supported
     }
 
@@ -283,7 +320,10 @@ class CleverTapKit :
         return info.fromCleverTap
     }
 
-    override fun onPushMessageReceived(context: Context, pushIntent: Intent) {
+    override fun onPushMessageReceived(
+        context: Context,
+        pushIntent: Intent,
+    ) {
         if (pushIntent.extras == null) {
             return
         }
@@ -291,7 +331,10 @@ class CleverTapKit :
         CleverTapAPI.createNotification(getContext(), extras)
     }
 
-    override fun onPushRegistration(instanceId: String, senderId: String): Boolean {
+    override fun onPushRegistration(
+        instanceId: String,
+        senderId: String,
+    ): Boolean {
         cleverTapInstance?.pushFcmRegistrationId(instanceId, true)
         return true
     }
@@ -300,23 +343,38 @@ class CleverTapKit :
         // not used
     }
 
-    override fun onIdentifyCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
+    override fun onIdentifyCompleted(
+        mParticleUser: MParticleUser,
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
+    ) {
         updateUser(mParticleUser, false)
     }
 
-    override fun onLoginCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
+    override fun onLoginCompleted(
+        mParticleUser: MParticleUser,
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
+    ) {
         updateUser(mParticleUser, true)
     }
 
-    override fun onLogoutCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
+    override fun onLogoutCompleted(
+        mParticleUser: MParticleUser,
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
+    ) {
         // not used
     }
 
-    override fun onModifyCompleted(mParticleUser: MParticleUser, filteredIdentityApiRequest: FilteredIdentityApiRequest) {
+    override fun onModifyCompleted(
+        mParticleUser: MParticleUser,
+        filteredIdentityApiRequest: FilteredIdentityApiRequest,
+    ) {
         updateUser(mParticleUser, false)
     }
 
-    private fun updateUser(mParticleUser: MParticleUser, isLogin: Boolean) {
+    private fun updateUser(
+        mParticleUser: MParticleUser,
+        isLogin: Boolean,
+    ) {
         val profile = HashMap<String, Any>()
         val customerId = mParticleUser.userIdentities[MParticle.IdentityType.CustomerId]
         val email = mParticleUser.userIdentities[MParticle.IdentityType.Email]
