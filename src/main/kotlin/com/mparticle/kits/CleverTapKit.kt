@@ -37,7 +37,6 @@ class CleverTapKit :
     KitIntegration.EventListener,
     PushListener,
     IdentityListener {
-
     private var cleverTapInstance: CleverTapAPI? = null
 
     override fun onKitCreate(settings: Map<String, String>, context: Context): List<ReportingMessage> {
@@ -145,15 +144,17 @@ class CleverTapKit :
             for ((key, value) in eventAttributes) {
                 details[key] = value
             }
-            val transactionId = if (event.transactionAttributes != null &&
-                !MPUtility.isEmpty(
-                    event.transactionAttributes?.id,
-                )
-            ) {
-                event.transactionAttributes?.id
-            } else {
-                null
-            }
+            val transactionId =
+                if (
+                    event.transactionAttributes != null &&
+                    !MPUtility.isEmpty(
+                        event.transactionAttributes?.id,
+                    )
+                ) {
+                    event.transactionAttributes?.id
+                } else {
+                    null
+                }
             if (transactionId != null) {
                 details["Charged ID"] = transactionId
             }
@@ -213,7 +214,8 @@ class CleverTapKit :
     override fun onSetUserAttribute(keyIn: String, valueIn: Any, user: FilteredMParticleUser) {
         var key = keyIn
         var value = valueIn
-        val profile = HashMap<String, Any>()
+        val profile =
+            HashMap<String, Any>()
         when {
             BIRTHDAY == key -> {
                 key = DOB
