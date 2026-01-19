@@ -17,14 +17,14 @@ import com.mparticle.identity.MParticleUser
 import com.mparticle.internal.Logger
 import com.mparticle.internal.MPUtility
 import com.mparticle.kits.CommerceEventUtils
+import com.mparticle.kits.FilteredIdentityApiRequest
+import com.mparticle.kits.FilteredMParticleUser
 import com.mparticle.kits.KitIntegration.CommerceListener
-import com.mparticle.kits.KitIntegration.FilteredIdentityApiRequest
-import com.mparticle.kits.KitIntegration.FilteredMParticleUser
 import com.mparticle.kits.KitIntegration.IdentityListener
 import com.mparticle.kits.KitIntegration.PushListener
-import com.mparticle.kits.KitIntegration.ReportingMessage
 import com.mparticle.kits.KitIntegration.UserAttributeListener
 import com.mparticle.kits.KitUtils
+import com.mparticle.kits.ReportingMessage
 import java.math.BigDecimal
 import java.util.ArrayList
 import java.util.HashMap
